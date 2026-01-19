@@ -12,12 +12,6 @@ A simple Node.js server that generates beautiful banners and logos for your bran
 - Direct API access
 - Download images directly from browser
 
-## Preview
-
-| Light Banner | Dark Banner |
-|--------------|-------------|
-| ![Light](https://via.placeholder.com/400x100/f8fafc/1e293b?text=Light+Banner) | ![Dark](https://via.placeholder.com/400x100/0f172a/e2e8f0?text=Dark+Banner) |
-
 ## Installation
 
 ```bash
