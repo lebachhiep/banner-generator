@@ -1,49 +1,44 @@
 # Banner Generator
 
-A simple Node.js server that generates beautiful banners and logos for your brand with gradient text effects.
+A Cloudflare Workers-powered service that generates beautiful SVG banners and logos with gradient text effects.
+
+**Live Demo:** https://banner-generator.bynari.workers.dev/
 
 ## Features
 
 - Generate full banners with domain name and tagline
 - Generate letter-only logos
-- Support light and dark themes
+- SVG favicon generation
+- Light and dark themes
 - 4 color styles: Netproxy, Aurora, Ocean, Candy
 - Web UI for easy generation
 - Direct API access
-- Download images directly from browser
+- Edge deployment (fast globally)
 
-## Installation
+## Quick Start
+
+### Development
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/banner-generator.git
-cd banner-generator
-
 # Install dependencies
 npm install
+
+# Run locally (note: WASM may have limitations in local dev)
+npm run dev
+
+# Deploy to Cloudflare Workers
+npm run deploy
 ```
 
-## Usage
+### Prerequisites
 
-### Start the server
+- Node.js 18+
+- Cloudflare account (for deployment)
+- Wrangler CLI (included in devDependencies)
 
-```bash
-node make_banner.js
-```
+## API Endpoints
 
-Open http://localhost:3001 in your browser.
-
-### Web UI
-
-The web interface allows you to:
-- Enter any domain or brand name
-- Choose from 4 color styles
-- Preview all variants (banner/logo, light/dark)
-- Download images directly
-
-### API Endpoints
-
-#### Generate Banner/Logo
+### Generate Banner/Logo
 
 ```
 GET /gen?logo={domain}&format={light|dark}&type={main|only_logo}&style={style}
@@ -53,29 +48,34 @@ GET /gen?logo={domain}&format={light|dark}&type={main|only_logo}&style={style}
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `logo` | Domain or brand name | `localhost` |
+| `logo` | Domain or brand name | Request host |
 | `format` | Theme: `light` or `dark` | `light` |
 | `type` | `main` (full banner) or `only_logo` (letter only) | `main` |
 | `style` | Color style: `netproxy`, `aurora`, `ocean`, `candy` | `netproxy` |
+| `size` | Logo size in pixels (only for `type=only_logo`) | `1024` |
 
 **Examples:**
 
 ```bash
 # Full banner, light theme
-curl "http://localhost:3001/gen?logo=example.com&format=light&type=main"
+curl "https://banner-generator.bynari.workers.dev/gen?logo=example.com&format=light&type=main"
 
 # Logo only, dark theme, ocean style
-curl "http://localhost:3001/gen?logo=example.com&format=dark&type=only_logo&style=ocean"
+curl "https://banner-generator.bynari.workers.dev/gen?logo=example.com&format=dark&type=only_logo&style=ocean"
+
+# Custom size logo
+curl "https://banner-generator.bynari.workers.dev/gen?logo=example.com&type=only_logo&size=512"
 ```
 
-#### Other Endpoints
+### Other Endpoints
 
 | Endpoint | Description |
 |----------|-------------|
 | `GET /` | Web UI |
-| `GET /banner.png` | Generate banner (legacy) |
-| `GET /logo.png` | Generate logo PNG |
-| `GET /icon.ico` | Generate favicon ICO |
+| `GET /banner.svg` | Generate banner SVG (legacy) |
+| `GET /logo.svg` | Generate logo SVG (legacy) |
+| `GET /icon.svg` | Generate SVG favicon |
+| `GET /favicon.ico` | SVG favicon (redirects to /icon.svg) |
 
 ## Color Styles
 
@@ -86,44 +86,45 @@ curl "http://localhost:3001/gen?logo=example.com&format=dark&type=only_logo&styl
 | **Ocean** | Light Blue → Blue gradient |
 | **Candy** | Pink → Orange → Yellow gradient |
 
-## Custom Fonts
-
-Place font files in the `fonts/` directory. Supported fonts:
-
-- Bodoni Moda (primary)
-- Playfair Display (fallback)
-- Cormorant Garamond (fallback)
-- Spectral SC (fallback)
-
 ## Tech Stack
 
-- [Express.js](https://expressjs.com/) - Web framework
-- [node-canvas](https://github.com/Automattic/node-canvas) - Canvas implementation for Node.js
+- [Cloudflare Workers](https://workers.cloudflare.com/) - Edge runtime
+- [@cf-wasm/satori](https://github.com/AltNext/cf-wasm) - SVG generation (Cloudflare Workers compatible)
+- [satori-html](https://github.com/natemoo-re/satori-html) - HTML to Satori VDOM
+- [Google Fonts](https://fonts.google.com/) - Inter font family
 
-## Requirements
+## Project Structure
 
-- Node.js 16+
-- npm or yarn
-
-### System Dependencies (for node-canvas)
-
-**Ubuntu/Debian:**
-```bash
-sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+```
+src/
+├── index.ts       # Worker entry point & routes
+├── banner.ts      # Banner/logo SVG markup
+├── fonts.ts       # Google Fonts loading
+├── styles.ts      # Brand color palettes
+├── utils.ts       # Domain parsing utilities
+└── html.ts        # Preview page HTML
 ```
 
-**macOS:**
-```bash
-brew install pkg-config cairo pango libpng jpeg giflib librsvg
+## Configuration
+
+Edit `wrangler.toml` to customize:
+
+```toml
+name = "banner-generator"
+main = "src/index.ts"
+compatibility_date = "2025-01-19"
+compatibility_flags = ["nodejs_compat"]
 ```
 
-**Windows:**
-See [node-canvas Windows installation](https://github.com/Automattic/node-canvas/wiki/Installation:-Windows)
+## Output Format
+
+All endpoints return **SVG** format (`image/svg+xml`). SVG advantages:
+
+- Scalable to any size without quality loss
+- Smaller file size than PNG
+- Native browser support
+- Can be used directly in `<img>` tags or as favicon
 
 ## License
 
 MIT
-
-## Author
-
-Your Name
