@@ -1,6 +1,20 @@
 {
+  "name": "banner-generator",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "cf-typegen": "wrangler types"
+  },
   "dependencies": {
-    "canvas": "^3.2.1",
-    "express": "^5.2.1"
+    "@cf-wasm/satori": "^0.3.3",
+    "satori-html": "^0.3.2"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260118.0",
+    "@types/react": "^19.2.8",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.59.2"
   }
 }

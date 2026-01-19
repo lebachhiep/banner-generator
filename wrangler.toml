@@ -1,0 +1,7 @@
+name = "banner-generator"
+main = "src/index.ts"
+compatibility_date = "2025-01-19"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
